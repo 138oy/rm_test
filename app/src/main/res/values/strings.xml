@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">RMTestApp</string>
+    <string name="main_header_text">Мой дом</string>
+</resources>
