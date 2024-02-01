@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.rmtestapp.AppState
-import com.example.rmtestapp.screens.MainScreen
+import com.example.rmtestapp.screens.MyHomeScreen
 
 @Composable
 fun RMTestAppNavHost(
@@ -18,7 +18,7 @@ fun RMTestAppNavHost(
         startDestination = startDestination,
     ) {
         composable(route = MainScreen.route) {
-            MainScreen(navController)
+            MyHomeScreen(navController)
         }
 
     }
