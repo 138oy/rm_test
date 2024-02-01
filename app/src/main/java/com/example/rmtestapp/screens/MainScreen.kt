@@ -3,6 +3,8 @@ package com.example.rmtestapp.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +22,7 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabPosition
 import androidx.compose.material3.TabRow
@@ -127,21 +130,26 @@ fun MainScreen(
                         val items = state.data as List<Camera>
                         items(items) { item ->
                             CameraSwipeBox(
-                                item,
-                                camerasViewModel
+                                data = item,
+                                viewModel = camerasViewModel
                             )
                         }
                     }
 
                     1 -> {
                         val items = state.data as List<Door>
-                        items(items) { item -> PlaceText(item.toString()) }
+                        items(items) { item ->
+                            DoorSwipeBox(
+                                data = item,
+                                viewModel = doorsViewModel
+                            )
+                        }
                     }
                 }
             }
 
-            is UIState.Error -> item { PlaceText(state.errorMsg) }
-            is UIState.Loading -> item { PlaceText("loading") }
+            is UIState.Error -> item { Text(state.errorMsg) }
+            is UIState.Loading -> item {  }
         }
     }
 }
@@ -182,14 +190,6 @@ fun TabMenu(
 }
 
 @Composable
-fun PlaceText(string: String) {
-    Text(text = string)
-    Text(text = string)
-    Text(text = string)
-    Text(text = "/n")
-}
-
-@Composable
 fun CustomIndicator(modifier: Modifier, color: Color) {
     Box(
         modifier
@@ -198,6 +198,8 @@ fun CustomIndicator(modifier: Modifier, color: Color) {
             .border(BorderStroke(2.dp, color), RoundedCornerShape(5.dp))
     )
 }
+
+// **CAMERAS** //
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -211,21 +213,12 @@ fun CameraSwipeBox(
         if (isLiked.value) ImageVector.vectorResource(id = R.drawable.ic_star)
         else ImageVector.vectorResource(id = R.drawable.ic_star_line)
 
-    SwipeBox(modifier = Modifier.fillMaxWidth(),
+    SwipeBox(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 21.dp, vertical = 11.dp),
         swipeDirection = SwipeDirection.EndToStart,
         endContentWidth = 60.dp,
         endContent = { swipeableState, _ ->
-//            SwipeIcon(
-//                imageVector = imgVector,
-//                contentDescription = "Add to favorite",
-//                tint = Color.Yellow,
-//                weight = 1f,
-//                iconSize = 40.dp,
-//            ) {
-//                isLiked.value = !isLiked.value
-//                viewModel.onFavoritePressed(data.cameraId)
-//                coroutineScope.launch { swipeableState.animateTo(0) }
-//            }
             Box(modifier = Modifier.fillMaxSize()) {
                 IconButton(
                     onClick = {
@@ -234,19 +227,73 @@ fun CameraSwipeBox(
                         coroutineScope.launch { swipeableState.animateTo(0) }
                     },
                     modifier = Modifier
+                        .padding(horizontal = 9.dp)
                         .then(Modifier.size(40.dp))
                         .border(1.dp, Color(230, 230, 230), shape = CircleShape)
                         .align(Alignment.Center)
                 ) {
                     Icon(
-                        imgVector,
-                        contentDescription = "content description",
+                        imageVector = imgVector,
+                        contentDescription = "Add to favorite",
                         tint = Color(224, 190, 53)
                     )
                 }
             }
         }) { _, _, _ ->
+
         CameraCard(data = data)
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_play),
+                contentDescription = "Play button",
+                tint = Color.White,
+                modifier = Modifier
+                    .padding(vertical = 73.dp, horizontal = 143.dp)
+                    .size(60.dp)
+            )
+
+            if (data.isRec) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_rec),
+                    contentDescription = "Rec is on",
+                    tint = Color(250, 48, 48),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(24.dp)
+                        .align(Alignment.TopStart)
+                )
+            }
+
+            if (isLiked.value) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_star),
+                    contentDescription = "Is in favorites",
+                    tint = Color(224, 190, 53),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(24.dp)
+                        .align(Alignment.TopEnd)
+                )
+            }
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 72.dp)
+                    .align(Alignment.BottomStart),
+                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
+                color = Color.White
+            ) {
+                Text(
+                    text = data.name,
+                    fontSize = TextUnit(17F, TextUnitType.Sp),
+                    fontFamily = CirceFamily,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier.padding(vertical = 20.dp, horizontal = 16.dp)
+                )
+            }
+        }
     }
 }
 
@@ -254,7 +301,6 @@ fun CameraSwipeBox(
 fun CameraCard(data: Camera) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 21.dp, vertical = 11.dp)
             .height(279.dp)
             .fillMaxWidth()
     ) {
@@ -264,6 +310,170 @@ fun CameraCard(data: Camera) {
 
 @Composable
 fun CameraImage(url: String) {
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(
+            LocalContext.current
+        )
+            .data("https://static.bubble.ru/product/cover/4c2353c1f1d1f777ab5e40deb083f286.jpg")
+            .size(Size.ORIGINAL)
+            .build()
+    )
+
+    when (painter.state) {
+        is AsyncImagePainter.State.Loading -> {
+            Box {}
+        }
+
+        is AsyncImagePainter.State.Error -> {
+            Text(text = (painter.state as AsyncImagePainter.State.Error).toString())
+        }
+
+        else -> {
+            AsyncImage(
+                model = painter.request.data,
+                contentDescription = "Snapshot",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxHeight()
+            )
+        }
+    }
+}
+
+// **DOORS** //
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun DoorSwipeBox(
+    data: Door,
+    viewModel: DoorsViewModel
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val isLiked = remember { mutableStateOf(data.isFavorites) }
+    val imgVector =
+        if (isLiked.value) ImageVector.vectorResource(id = R.drawable.ic_star)
+        else ImageVector.vectorResource(id = R.drawable.ic_star_line)
+
+    SwipeBox(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 21.dp, vertical = 11.dp),
+        swipeDirection = SwipeDirection.EndToStart,
+        endContentWidth = 110.dp,
+        endContent = { swipeableState, _ ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                Row(modifier = Modifier.align(Alignment.Center)) {
+                    IconButton(
+                        onClick = {
+                            coroutineScope.launch { swipeableState.animateTo(0) }
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 9.dp)
+                            .then(Modifier.size(40.dp))
+                            .border(1.dp, Color(230, 230, 230), shape = CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_edit),
+                            contentDescription = "Add to favorite",
+                            tint = Color(3, 169, 244)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
+                            isLiked.value = !isLiked.value
+                            viewModel.onFavoritePressed(data.doorId)
+                            coroutineScope.launch { swipeableState.animateTo(0) }
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 9.dp)
+                            .then(Modifier.size(40.dp))
+                            .border(1.dp, Color(230, 230, 230), shape = CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = imgVector,
+                            contentDescription = "Add to favorite",
+                            tint = Color(224, 190, 53)
+                        )
+                    }
+                }
+            }
+        }) { _, _, _ ->
+
+        if (data.snapshot != null) {
+            DoorCard(data = data)
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_play),
+                    contentDescription = "Play button",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .padding(vertical = 73.dp, horizontal = 143.dp)
+                        .size(60.dp)
+                )
+
+                if (isLiked.value) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_star),
+                        contentDescription = "Is in favorites",
+                        tint = Color(224, 190, 53),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(24.dp)
+                            .align(Alignment.TopEnd)
+                    )
+                }
+
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 72.dp)
+                        .align(Alignment.BottomStart),
+                    shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
+                    color = Color.White
+                ) {
+                    Text(
+                        text = data.name,
+                        fontSize = TextUnit(17F, TextUnitType.Sp),
+                        fontFamily = CirceFamily,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier.padding(vertical = 20.dp, horizontal = 16.dp)
+                    )
+                }
+            }
+        } else {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 72.dp)
+                    .align(Alignment.BottomStart),
+                shape = RoundedCornerShape(12.dp),
+                color = Color.White
+            ) {
+                Text(
+                    text = data.name,
+                    fontSize = TextUnit(17F, TextUnitType.Sp),
+                    fontFamily = CirceFamily,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier.padding(vertical = 20.dp, horizontal = 16.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DoorCard(data: Door) {
+    Card(
+        modifier = Modifier
+            .height(279.dp)
+            .fillMaxWidth()
+    ) {
+        DoorImage(data.snapshot!!)
+    }
+}
+
+@Composable
+fun DoorImage(url: String) {
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(
             LocalContext.current
