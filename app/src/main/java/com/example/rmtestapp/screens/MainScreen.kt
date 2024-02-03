@@ -48,6 +48,8 @@ import com.example.rmtestapp.ui.UIState
 import com.example.rmtestapp.ui.components.ImageCard
 import com.example.rmtestapp.ui.components.TabMenu
 import com.example.rmtestapp.ui.components.icons.FilledStarIcon
+import com.example.rmtestapp.ui.components.icons.GuardIcon
+import com.example.rmtestapp.ui.components.icons.LockIcon
 import com.example.rmtestapp.ui.components.icons.PlayIcon
 import com.example.rmtestapp.ui.components.icons.RecIcon
 import com.example.rmtestapp.ui.fonts.CirceFamily
@@ -147,13 +149,38 @@ fun LazyListScope.MyHomeScreen(
             when (tabIndex) {
                 0 -> {
                     val items = state.data as List<Camera>
-                    items(items) { item ->
-                        CameraSwipeBox(
-                            data = item,
-                            viewModel = camerasViewModel,
-                            modifier = swipeBoxModifier
-                        )
+                    //TODO: show mapped data
+                    val mappedItems = items.groupBy { it.room }
+                    mappedItems.forEach { (s, cameras) ->
+                        if (s != null) {
+                            item {
+                                Text(
+                                    text = s,
+                                    modifier = Modifier.padding(
+                                        vertical = 16.dp,
+                                        horizontal = 20.dp
+                                    ),
+                                    fontSize = TextUnit(value = 21F, type = TextUnitType.Sp),
+                                    fontFamily = CirceFamily,
+                                    fontWeight = FontWeight.Light,
+                                )
+                            }
+                            items(cameras) { item ->
+                                CameraSwipeBox(
+                                    data = item,
+                                    viewModel = camerasViewModel,
+                                    modifier = swipeBoxModifier
+                                )
+                            }
+                        }
                     }
+//                    items(items) { item ->
+//                        CameraSwipeBox(
+//                            data = item,
+//                            viewModel = camerasViewModel,
+//                            modifier = swipeBoxModifier
+//                        )
+//                    }
                 }
 
                 1 -> {
@@ -227,8 +254,9 @@ fun CameraSwipeBox(
             PlayIcon(
                 color = Color.White,
                 modifier = Modifier
-                    .padding(vertical = 73.dp, horizontal = 143.dp)
+                    .padding(vertical = 73.dp)
                     .size(60.dp)
+                    .align(Alignment.TopCenter)
             )
 
             if (data.isRec) {
@@ -259,13 +287,25 @@ fun CameraSwipeBox(
                 shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
                 color = Color.White
             ) {
-                Text(
-                    text = data.name,
-                    fontSize = TextUnit(17F, TextUnitType.Sp),
-                    fontFamily = CirceFamily,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier.padding(vertical = 20.dp, horizontal = 16.dp)
-                )
+                Box(modifier = modifier.fillMaxWidth()) {
+                    Text(
+                        text = data.name,
+                        fontSize = TextUnit(17F, TextUnitType.Sp),
+                        fontFamily = CirceFamily,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                            .padding(vertical = 20.dp, horizontal = 16.dp)
+                            .align(
+                                Alignment.CenterStart
+                            )
+                    )
+                    GuardIcon(
+                        color = Color(182, 186, 191), modifier = Modifier
+                            .padding(24.dp)
+                            .size(24.dp)
+                            .align(Alignment.CenterEnd)
+                    )
+                }
             }
         }
     }
@@ -333,7 +373,12 @@ fun DoorSwipeBox(
         val snapshot = data.snapshot
 
         if (snapshot != null) {
-            ImageCard(snapshot = snapshot)
+            ImageCard(
+                snapshot = snapshot,
+                modifier = Modifier
+                    .height(279.dp)
+                    .fillMaxWidth()
+            )
 
             Box(modifier = Modifier.fillMaxSize()) {
                 PlayIcon(
@@ -341,6 +386,7 @@ fun DoorSwipeBox(
                     modifier = Modifier
                         .padding(vertical = 73.dp, horizontal = 143.dp)
                         .size(60.dp)
+                        .align(Alignment.TopCenter)
                 )
 
                 if (isLiked.value) {
@@ -361,30 +407,43 @@ fun DoorSwipeBox(
                     shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
                     color = Color.White
                 ) {
-                    Text(
-                        text = data.name,
-                        fontSize = TextUnit(17F, TextUnitType.Sp),
-                        fontFamily = CirceFamily,
-                        fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(vertical = 20.dp, horizontal = 16.dp)
-                    )
+                    Box(modifier = modifier.fillMaxWidth()) {
+                        Text(
+                            text = data.name,
+                            fontSize = TextUnit(17F, TextUnitType.Sp),
+                            fontFamily = CirceFamily,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier
+                                .padding(vertical = 20.dp, horizontal = 16.dp)
+                                .align(Alignment.CenterStart)
+                        )
+                        LockIcon(
+                            color = Color(182, 186, 191),
+                            modifier = Modifier
+                                .padding(24.dp)
+                                .size(24.dp)
+                                .align(Alignment.CenterEnd)
+                        )
+                    }
                 }
             }
         } else {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .defaultMinSize(minHeight = 72.dp)
-                    .align(Alignment.BottomStart),
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White
-            ) {
+            Box(modifier = modifier.fillMaxWidth()) {
                 Text(
                     text = data.name,
                     fontSize = TextUnit(17F, TextUnitType.Sp),
                     fontFamily = CirceFamily,
                     fontWeight = FontWeight.Normal,
-                    modifier = Modifier.padding(vertical = 20.dp, horizontal = 16.dp)
+                    modifier = Modifier
+                        .padding(vertical = 20.dp, horizontal = 16.dp)
+                        .align(Alignment.CenterStart)
+                )
+                LockIcon(
+                    color = Color(3, 169, 244),
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .size(24.dp)
+                        .align(Alignment.CenterEnd)
                 )
             }
         }
