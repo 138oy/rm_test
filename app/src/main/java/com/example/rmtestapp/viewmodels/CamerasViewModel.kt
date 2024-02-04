@@ -33,16 +33,6 @@ class CamerasViewModel @Inject constructor(private val interactor: CamerasIntera
 
     internal fun onFavoritePressed(id: Int) {
         viewModelScope.launch {
-//            val currentState = state.value as UIState.Success<MutableList<Camera>>
-//            currentState.data.forEach { camera ->
-//                if (camera.cameraId == id)
-//                    currentState.data.set(
-//                        currentState.data.indexOf(camera),
-//                        camera.copy(isFavorites = !camera.isFavorites)
-//                    )
-//            }
-//            _state.value = currentState
-
             interactor.updateFavorite(id)
         }
     }

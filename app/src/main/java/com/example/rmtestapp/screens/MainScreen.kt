@@ -75,9 +75,6 @@ fun MyHomeScreen(
     doorsViewModel: DoorsViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
-    camerasViewModel.getCameras()
-    doorsViewModel.getDoors()
-
     val tabIndex = rememberSaveable { mutableStateOf(0) }
 
     val state = when (tabIndex.value) {
@@ -152,14 +149,13 @@ fun LazyListScope.MyHomeScreen(
         .fillMaxWidth()
         .padding(horizontal = 21.dp, vertical = 11.dp)
 
-    when (state) {
-        is UIState.Success<*> -> {
-            when (tabIndex) {
-                0 -> {
+    when (tabIndex) {
+        0 -> {
+            when (state) {
+                is UIState.Success<*> -> {
                     val items = state.data as List<Camera>
 
                     //TODO: show mapped data, fix error (fails at door to camera mapping)
-
                     val mappedItems = items.groupBy { it.room }
                     mappedItems.forEach { (s, cameras) ->
                         if (s != null) {
@@ -193,7 +189,14 @@ fun LazyListScope.MyHomeScreen(
 //                    }
                 }
 
-                1 -> {
+                is UIState.Error -> item { Text(state.errorMsg) }
+                is UIState.Loading -> camerasViewModel.getCameras()
+            }
+        }
+
+        1 -> {
+            when (state) {
+                is UIState.Success<*> -> {
                     val items = state.data as List<Door>
                     items(items) { item ->
                         DoorSwipeBox(
@@ -203,11 +206,11 @@ fun LazyListScope.MyHomeScreen(
                         )
                     }
                 }
+
+                is UIState.Error -> item { Text(state.errorMsg) }
+                is UIState.Loading -> doorsViewModel.getDoors()
             }
         }
-
-        is UIState.Error -> item { Text(state.errorMsg) }
-        is UIState.Loading -> doNothing()
     }
 }
 
