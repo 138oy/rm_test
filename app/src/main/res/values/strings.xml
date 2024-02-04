@@ -3,4 +3,7 @@
     <string name="main_header_text">Мой дом</string>
     <string name="main_tab_cameras">Камеры</string>
     <string name="main_tab_doors">Двери</string>
+    <string name="main_dialog_text">Введите новое название:</string>
+    <string name="main_dialog_button_confirm">Готово</string>
+    <string name="main_dialog_button_cancel">Отмена</string>
 </resources>

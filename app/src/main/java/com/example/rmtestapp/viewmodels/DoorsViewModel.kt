@@ -34,4 +34,15 @@ class DoorsViewModel @Inject constructor(private val interactor: DoorsInteractor
     internal fun onFavoritePressed(id: Int) {
         interactor.updateFavorite(id)
     }
+
+    internal fun onNameChange(id: Int, name: String) {
+//        val currentState = _state.asStateFlow().value as UIState.Success<MutableList<Door>>
+//        val currentData = currentState.data
+//        val currentDoor = currentData.find { it.doorId == id }
+//        val newData = currentDoor?.copy(name = name)
+//        if (newData != null) {
+//            currentData[currentData.indexOf(currentDoor)] = newData
+//        }
+        interactor.updateName(id, name)
+    }
 }

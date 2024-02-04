@@ -38,7 +38,7 @@ class DoorsRepositoryImpl @Inject constructor(
     override fun updateDoorsCached(data: List<DoorModel>) {
         CoroutineScope(Dispatchers.IO).launch {
             data.forEach { model ->
-                dao.updateDoor(model.doorId, model.name, model.snapshot)
+                dao.updateDoor(model.doorId, model.snapshot)
             }
         }
     }
@@ -57,6 +57,12 @@ class DoorsRepositoryImpl @Inject constructor(
     override fun updateFavorite(id: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             dao.updateFavorite(id)
+        }
+    }
+
+    override fun updateName(id: Int, name: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            dao.updateName(id, name)
         }
     }
 }

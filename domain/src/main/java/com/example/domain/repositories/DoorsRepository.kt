@@ -16,4 +16,6 @@ interface DoorsRepository {
     fun cacheDoors(data: List<DoorModel>)
 
     fun updateFavorite(id: Int)
+
+    fun updateName(id: Int, name: String)
 }

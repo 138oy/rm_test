@@ -2,6 +2,7 @@ package com.example.rmtestapp.screens
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -16,13 +18,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.common.doNothing
@@ -149,7 +157,9 @@ fun LazyListScope.MyHomeScreen(
             when (tabIndex) {
                 0 -> {
                     val items = state.data as List<Camera>
-                    //TODO: show mapped data
+
+                    //TODO: show mapped data, fix error (fails at door to camera mapping)
+
                     val mappedItems = items.groupBy { it.room }
                     mappedItems.forEach { (s, cameras) ->
                         if (s != null) {
@@ -320,11 +330,15 @@ fun DoorSwipeBox(
     modifier: Modifier = Modifier
 ) {
     val coroutineScope = rememberCoroutineScope()
+
     val isLiked = remember { mutableStateOf(data.isFavorites) }
+    val name = remember { mutableStateOf(data.name) }
 
     val imgVector =
         if (isLiked.value) ImageVector.vectorResource(id = R.drawable.ic_star)
         else ImageVector.vectorResource(id = R.drawable.ic_star_line)
+
+    val showDialog = rememberSaveable { mutableStateOf(false) }
 
     SwipeBox(modifier = modifier,
         swipeDirection = SwipeDirection.EndToStart,
@@ -335,6 +349,7 @@ fun DoorSwipeBox(
                 Row(modifier = Modifier.align(Alignment.Center)) {
                     IconButton(
                         onClick = {
+                            showDialog.value = true
                             coroutineScope.launch { swipeableState.animateTo(0) }
                         },
                         modifier = Modifier
@@ -344,7 +359,7 @@ fun DoorSwipeBox(
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_edit),
-                            contentDescription = "Add to favorite",
+                            contentDescription = "Edit name",
                             tint = Color(3, 169, 244)
                         )
                     }
@@ -409,7 +424,7 @@ fun DoorSwipeBox(
                 ) {
                     Box(modifier = modifier.fillMaxWidth()) {
                         Text(
-                            text = data.name,
+                            text = name.value,
                             fontSize = TextUnit(17F, TextUnitType.Sp),
                             fontFamily = CirceFamily,
                             fontWeight = FontWeight.Normal,
@@ -418,7 +433,7 @@ fun DoorSwipeBox(
                                 .align(Alignment.CenterStart)
                         )
                         LockIcon(
-                            color = Color(182, 186, 191),
+                            color = Color(3, 169, 244),
                             modifier = Modifier
                                 .padding(24.dp)
                                 .size(24.dp)
@@ -430,7 +445,7 @@ fun DoorSwipeBox(
         } else {
             Box(modifier = modifier.fillMaxWidth()) {
                 Text(
-                    text = data.name,
+                    text = name.value,
                     fontSize = TextUnit(17F, TextUnitType.Sp),
                     fontFamily = CirceFamily,
                     fontWeight = FontWeight.Normal,
@@ -445,6 +460,86 @@ fun DoorSwipeBox(
                         .size(24.dp)
                         .align(Alignment.CenterEnd)
                 )
+            }
+        }
+
+        if (showDialog.value) DoorDialogWindow(
+            showDialog = showDialog,
+            viewModel = viewModel,
+            id = data.doorId,
+            name = name,
+            modifier = Modifier.size(height = 210.dp, width = 280.dp)
+        )
+    }
+}
+
+@Composable
+fun DoorDialogWindow(
+    showDialog: MutableState<Boolean>,
+    viewModel: DoorsViewModel,
+    id: Int,
+    name: MutableState<String>,
+    modifier: Modifier = Modifier
+) {
+    val newName = rememberSaveable { mutableStateOf("") }
+
+    Dialog(onDismissRequest = { showDialog.value = false }) {
+        Card(
+            shape = RoundedCornerShape(size = 12.dp),
+            modifier = modifier
+        ) {
+            Box(modifier = modifier.defaultMinSize()) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.main_dialog_text),
+                        fontSize = TextUnit(17F, TextUnitType.Sp),
+                        fontFamily = CirceFamily,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                            .padding(vertical = 15.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = newName.value,
+                        onValueChange = { it: String -> newName.value = it }
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        viewModel.onNameChange(id, newName.value)
+                        showDialog.value = false
+                        name.value = newName.value
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        Color(3, 169, 244)
+                    ),
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .align(Alignment.BottomEnd)
+                        .padding(10.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.main_dialog_button_confirm),
+                        modifier = Modifier.padding(5.dp)
+                    )
+                }
+
+                Button(
+                    onClick = { showDialog.value = false },
+                    colors = ButtonDefaults.buttonColors(
+                        Color.Gray
+                    ),
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .align(Alignment.BottomStart)
+                        .padding(10.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.main_dialog_button_cancel),
+                        modifier = Modifier.padding(5.dp)
+                    )
+                }
             }
         }
     }

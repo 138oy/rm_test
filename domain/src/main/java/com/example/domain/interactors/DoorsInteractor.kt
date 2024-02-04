@@ -54,4 +54,8 @@ class DoorsInteractor @Inject constructor(
     fun updateFavorite(id: Int) {
         repository.updateFavorite(id)
     }
+
+    fun updateName(id: Int, name: String) {
+        repository.updateName(id, name)
+    }
 }
