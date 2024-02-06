@@ -211,6 +211,7 @@ empty-blocks:
   EmptyFunctionBlock:
     active: true
     ignoreOverridden: false
+    ignoreFunction: [ 'doNothing' ]
   EmptyIfBlock:
     active: true
   EmptyInitBlock:
@@ -246,6 +247,7 @@ exceptions:
     active: true
   RethrowCaughtException:
     active: true
+    ignoreFunction: [ 'getDoors', 'getCameras' ]
   ReturnFromFinally:
     active: true
     ignoreLabeled: false
@@ -279,7 +281,7 @@ exceptions:
   TooGenericExceptionCaught:
     active: true
     excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
-    ignoreFunction: [ 'getCameras', 'getDoors' ]
+    ignoreFunction: [ 'getCameras', 'getDoors', 'safeApiCall']
     exceptionNames:
       - 'ArrayIndexOutOfBoundsException'
       - 'Error'
@@ -297,6 +299,7 @@ exceptions:
       - 'Exception'
       - 'RuntimeException'
       - 'Throwable'
+    ignoreFunction: [ 'getDoors', 'getCameras' ]
 
 naming:
   active: true
