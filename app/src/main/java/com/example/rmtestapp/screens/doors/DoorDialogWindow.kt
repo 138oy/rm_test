@@ -62,7 +62,7 @@ fun DoorDialogWindow(
 
                     OutlinedTextField(
                         value = newName.value,
-                        onValueChange = { it: String -> newName.value = it }
+                        onValueChange = { input: String -> newName.value = input }
                     )
                 }
 
