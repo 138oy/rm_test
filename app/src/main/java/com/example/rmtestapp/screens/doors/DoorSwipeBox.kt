@@ -113,7 +113,7 @@ fun DoorSwipeBox(
 
         val snapshot = data.snapshot
 
-        if (snapshot != null) {
+        snapshot?.let {
             ImageCard(
                 snapshot = snapshot,
                 modifier = Modifier
@@ -172,7 +172,7 @@ fun DoorSwipeBox(
                     }
                 }
             }
-        } else {
+        } ?: run {
             Box(
                 modifier = modifier.fillMaxWidth()
             ) {

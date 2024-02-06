@@ -19,7 +19,7 @@ fun Image(
 ) {
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
-            //temporary(?) static link, as the one given by api seems to cause error because of some privacy things
+            //temporary(?) static link, as the one given by api seems to cause error because due to some privacy things
             .data("https://static.bubble.ru/product/cover/4c2353c1f1d1f777ab5e40deb083f286.jpg")
             .size(Size.ORIGINAL)
             .build()

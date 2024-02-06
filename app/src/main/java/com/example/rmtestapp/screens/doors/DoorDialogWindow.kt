@@ -2,6 +2,7 @@ package com.example.rmtestapp.screens.doors
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,7 +45,9 @@ fun DoorDialogWindow(
             shape = RoundedCornerShape(size = 12.dp),
             modifier = modifier
         ) {
-            Box{
+            Box(
+                modifier = modifier.defaultMinSize()
+            ) {
                 Column(
                     modifier = Modifier.padding(20.dp)
                 ) {

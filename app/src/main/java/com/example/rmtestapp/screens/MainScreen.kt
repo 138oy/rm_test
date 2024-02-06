@@ -2,6 +2,7 @@ package com.example.rmtestapp.screens
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -69,7 +70,11 @@ fun MyHomeScreen(
         state = state,
         tabIndex = tabIndex,
         camerasViewModel = camerasViewModel,
-        doorsViewModel = doorsViewModel
+        doorsViewModel = doorsViewModel,
+        modifier = modifier
+            .safeContentPadding()
+            .fillMaxWidth()
+            .pullRefresh(pullRefreshState)
     )
 }
 
@@ -84,9 +89,7 @@ fun MyHomeScreen(
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
-        modifier = modifier
-            .fillMaxWidth()
-            .pullRefresh(pullRefreshState),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -144,13 +147,13 @@ fun LazyListScope.MyHomeScreen(
                 is UIState.Success<*> -> {
                     val items = state.data as List<Camera>
 
-                    //TODO: show mapped data, fix error (fails at door to camera mapping??????????)
-                    val mappedItems = items.groupBy { it.room }
-                    mappedItems.forEach { (s, cameras) ->
-                        if (s != null) {
-                            item {
+                    item {
+                        val mappedItems = items.groupBy { it.room }
+
+                        mappedItems.forEach { (room, cameras) ->
+                            room?.let {
                                 Text(
-                                    text = s,
+                                    text = room,
                                     modifier = Modifier.padding(
                                         vertical = 16.dp,
                                         horizontal = 20.dp
@@ -159,23 +162,17 @@ fun LazyListScope.MyHomeScreen(
                                     fontFamily = CirceFamily,
                                     fontWeight = FontWeight.Light,
                                 )
-                            }
-                            items(cameras) { item ->
-                                CameraSwipeBox(
-                                    data = item,
-                                    viewModel = camerasViewModel,
-                                    modifier = swipeBoxModifier
-                                )
+
+                                cameras.forEach { camera ->
+                                    CameraSwipeBox(
+                                        data = camera,
+                                        viewModel = camerasViewModel,
+                                        modifier = swipeBoxModifier
+                                    )
+                                }
                             }
                         }
                     }
-//                    items(items) { item ->
-//                        CameraSwipeBox(
-//                            data = item,
-//                            viewModel = camerasViewModel,
-//                            modifier = swipeBoxModifier
-//                        )
-//                    }
                 }
 
                 is UIState.Error -> item { Text(state.errorMsg) }
