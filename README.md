@@ -23,7 +23,7 @@ The second list shows data about doors: their names, snapshots if they have ones
 
 | cameras screen                                    | doors screen                                                |
 |---------------------------------------------------|-------------------------------------------------------------|
-| <img src="assets/cameras_screen.jpg" width="300"> | <img src="assets/screenshots/doors_screen.jpg" width="300"> |
+| <img src="assets/cameras_screen.png" width="300"> | <img src="assets/screenshots/doors_screen.png" width="300"> |
 
 ## How to run
 
