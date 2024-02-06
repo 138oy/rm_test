@@ -1,6 +1,7 @@
 package com.example.domain.interactors
 
 import com.example.common.ResponseWrapper
+import com.example.common.doNothing
 import com.example.domain.entities.Door
 import com.example.domain.models.DoorModel
 import com.example.domain.repositories.DoorsRepository
@@ -27,7 +28,7 @@ class DoorsInteractor @Inject constructor(
                         apiResponse.add(elem)
                     }
 
-                    is ResponseWrapper.Error -> throw Throwable(wrapper.code)
+                    is ResponseWrapper.Error -> doNothing()
                 }
             }
 
